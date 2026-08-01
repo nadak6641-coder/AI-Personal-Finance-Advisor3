@@ -71,27 +71,19 @@ def retrieve_lexical(query: str, k: int = 5) -> pd.DataFrame:
 # ---------------------------------------------------------------------------
 
 _chroma_client = chromadb.PersistentClient(path=CHROMA_DB_PATH)
-_collection = _chroma_client.get_collection(COLLECTION_NAME)
 
-
-def retrieve_semantic(query: str, k: int = 5) -> pd.DataFrame:
-    query_embedding = embed_texts([query])
-    raw = _collection.query(query_embeddings=query_embedding.tolist(), n_results=k)
-
-    rows = []
-    for chunk_id, distance, document_text, metadata in zip(
-        raw["ids"][0], raw["distances"][0], raw["documents"][0], raw["metadatas"][0]
-    ):
-        # Chroma's default distance is squared L2 on normalized vectors;
-        # convert to a similarity-like score in [0, 1] for consistent blending.
-        similarity = 1 - (distance / 2)
-        rows.append({
-            "chunk_id": chunk_id, "document_id": metadata["document_id"],
-            "title": metadata["title"], "doc_type": metadata["doc_type"],
-            "effective_date": metadata["effective_date"], "is_current": metadata["is_current"],
-            "chunk_text": document_text, "score": similarity,
-        })
-    return pd.DataFrame(rows)
+try:
+    _collection = _chroma_client.get_collection(COLLECTION_NAME)
+except chromadb.errors.NotFoundError:
+    _collection = _chroma_client.create_collection(COLLECTION_NAME)
+    # هنا لازم تضيف الـ chunks والـ embeddings فعليًا
+    embeddings = embed_texts(chunks_df["search_text"].tolist())
+    _collection.add(
+        ids=chunks_df["chunk_id"].tolist(),
+        embeddings=embeddings.tolist(),
+        documents=chunks_df["chunk_text"].tolist() if "chunk_text" in chunks_df else chunks_df["search_text"].tolist(),
+        metadatas=chunks_df[["document_id", "title", "doc_type", "effective_date", "is_current"]].to_dict("records"),
+    )
 
 
 # ---------------------------------------------------------------------------
