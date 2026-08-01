@@ -1,0 +1,13 @@
+# Never commit real secrets
+.env
+
+# Local vector store (regenerate with 05_create_chroma_store.py)
+chroma_db/
+
+# Python cache
+__pycache__/
+*.pyc
+
+# OS/editor junk
+.DS_Store
+.vscode/
