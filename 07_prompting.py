@@ -57,13 +57,13 @@ def generate_answer(query: str, context_text: str, api_key: str = None, model: s
 
     prompt = build_prompt(query, context_text)
 
-   response = requests.post(
-    url=OPENROUTER_URL,
-    headers={
+    response = requests.post(
+     url=OPENROUTER_URL,
+     headers={
         "Authorization": f"Bearer {key}",
         "Content-Type": "application/json",
-    },
-    json={
+     },
+     json={
         "model": model_name,
         "messages": [{"role": "user", "content": prompt}],
         "temperature": 0.2,
