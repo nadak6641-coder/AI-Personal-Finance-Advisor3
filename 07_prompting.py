@@ -58,12 +58,12 @@ def generate_answer(query: str, context_text: str, api_key: str = None, model: s
     prompt = build_prompt(query, context_text)
 
     response = requests.post(
-     url=OPENROUTER_URL,
-     headers={
+    url=OPENROUTER_URL,
+    headers={
         "Authorization": f"Bearer {key}",
         "Content-Type": "application/json",
-     },
-     json={
+    },
+    json={
         "model": model_name,
         "messages": [{"role": "user", "content": prompt}],
         "temperature": 0.2,
@@ -78,8 +78,7 @@ if not response.ok:
     )
 
 data = response.json()
-    data = response.json()
-    return data["choices"][0]["message"]["content"]
+return data["choices"][0]["message"]["content"]
 
 
 if __name__ == "__main__":
