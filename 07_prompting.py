@@ -58,27 +58,27 @@ def generate_answer(query: str, context_text: str, api_key: str = None, model: s
     prompt = build_prompt(query, context_text)
 
     response = requests.post(
-    url=OPENROUTER_URL,
-    headers={
-        "Authorization": f"Bearer {key}",
-        "Content-Type": "application/json",
-    },
-    json={
-        "model": model_name,
-        "messages": [{"role": "user", "content": prompt}],
-        "temperature": 0.2,
-    },
-    timeout=30,
-)
-
-if not response.ok:
-    raise Exception(
-        f"Status: {response.status_code}\n"
-        f"Response: {response.text}"
+        url=OPENROUTER_URL,
+        headers={
+            "Authorization": f"Bearer {key}",
+            "Content-Type": "application/json",
+        },
+        json={
+            "model": model_name,
+            "messages": [{"role": "user", "content": prompt}],
+            "temperature": 0.2,
+        },
+        timeout=30,
     )
 
-data = response.json()
-return data["choices"][0]["message"]["content"]
+    if not response.ok:
+        raise Exception(
+            f"Status: {response.status_code}\n"
+            f"Response: {response.text}"
+        )
+
+    data = response.json()
+    return data["choices"][0]["message"]["content"]
 
 
 if __name__ == "__main__":
